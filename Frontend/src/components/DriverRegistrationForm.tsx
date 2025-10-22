@@ -1,12 +1,26 @@
 import { Input } from "./Input";
 import { useState } from "react";
 
-const handleConductorRegistration = () => console.log('Registrando Conductor...');
+type ConductorRegistrationFormProps = {
+  onBackToRoleSelect: () => void;
+  onRegistrationSuccess: () => void; 
+}
 
-export function ConductorRegistrationForm({ onBackToRoleSelect }: { onBackToRoleSelect: () => void }) {
+export function ConductorRegistrationForm({ onBackToRoleSelect, onRegistrationSuccess }: ConductorRegistrationFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Aquí es donde harías la validación del formulario y la llamada a la API de registro.
+        console.log('Registrando Conductor...');
+        
+        // 2. UNA VEZ QUE EL REGISTRO ES EXITOSO, LLAMAMOS AL CALLBACK.
+        // Esto le dice al componente padre (LoginPage) que la autenticación fue exitosa
+        // y que debe cambiar la pantalla a 'home_driver'.
+        onRegistrationSuccess(); 
+    };
   return (
-    <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleConductorRegistration(); }}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       {/* Botón de volver al principio del formulario */}
       <button
           type="button"
