@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Input } from "./Input";
 
-export function LoginForm() {
+type LoginFormProps = {
+  onRegisterClick: () => void;
+};
+
+export function LoginForm({ onRegisterClick }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form className="space-y-6">
-      <div className="flex flex-col gap-4"> 
+      <div className="flex flex-col gap-4">
+        {/* ... Inputs de Correo y Contraseña (sin cambios) ... */}
         <Input
           label="Correo electrónico"
           type="email"
@@ -33,15 +38,17 @@ export function LoginForm() {
         </button>
       </div>
 
+      {/* CAMBIO CLAVE: Usa onRegisterClick para delegar el cambio de vista */}
       <div className="text-center pt-3">
         <p className="text-sm text-gray-600">
           ¿Aún no tienes una cuenta?{" "}
-          <a 
-            href="#"
-            className="font-bold text-blue-600 hover:text-blue-500 transition duration-150"
+          <button 
+            type="button"
+            onClick={onRegisterClick} // Llama a la función que cambia el estado en LoginPage
+            className="font-bold text-blue-600 hover:text-blue-500 transition duration-150 focus:outline-none"
           >
             Regístrate
-          </a>
+          </button>
         </p>
       </div>
     </form>
