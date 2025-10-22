@@ -67,8 +67,8 @@ export function LoginPage() {
       : 'min-h-screen p-4 items-center justify-center'; // Vuelve al centrado
 
   const cardClasses = isFullScreen
-    ? 'max-w-none w-full h-full rounded-none shadow-none space-y-0 overflow-y-hidden' // Ocupa todo, sin bordes ni sombra
-    : 'max-w-2xl p-8 sm:p-10 space-y-8 overflow-y-auto max-h-full rounded-3xl shadow-2xl'; // Vuelve al estilo de tarjeta
+    ? 'max-w-none w-full h-full rounded-none shadow-none space-y-0 overflow-y-hidden' 
+    : 'max-w-2xl p-8 sm:p-10 space-y-8 overflow-y-auto max-h-full rounded-3xl shadow-2xl'; 
 
   return (
     <div className={`relative flex w-full flex-col font-display bg-gray-50 ${parentContainerClasses}`}>
