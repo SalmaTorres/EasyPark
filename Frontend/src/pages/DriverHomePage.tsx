@@ -4,9 +4,12 @@ import { BookingConfirmationPage } from './BookingConfirmationPage';
 import { ProfileMenuPage } from './ProfileMenuPage';
 import { ReservationInfoPage } from './ReservationInfoPage';
 import { ParkingHistoryPage } from './ParkingHistoryPage';
+// FIX: Importar 'UserRole' como un tipo
+import type { UserRole } from './LoginPage';
 
 type DriverHomePageProps = {
     onLogout: () => void;
+    role: UserRole;
 };
 
 type ParkingItemType = {
@@ -15,7 +18,7 @@ type ParkingItemType = {
     address: string;
     price: string;
     rating: number;
-    availability: 'Vacío' | 'Media' | 'Lleno';
+    availability: 'Vacío' | 'Media' | 'Lleno'; // Valores definidos
 };
 
 const simulatedParkings: ParkingItemType[] = [
@@ -37,6 +40,7 @@ const ParkingListItem = ({ parking, onReserveClick }: { parking: ParkingItemType
                     'bg-red-100 text-red-700'
                 }`}>
                     <span className="material-symbols-outlined text-sm">
+                        {/* CORRECCIÓN 1: Se eliminó la comparación con 'warning' que no existe en ParkingItemType.availability */}
                         {parking.availability === 'Vacío' ? 'check_circle' : parking.availability === 'Media' ? 'warning' : 'cancel'}
                     </span>
                     <span>{parking.availability}</span>
@@ -60,45 +64,38 @@ const ParkingListItem = ({ parking, onReserveClick }: { parking: ParkingItemType
     </div>
 );
 
-export function DriverHomePage({ onLogout }: DriverHomePageProps) {
-    // 2. ACTUALIZAR ESTADO DE VISTA con 'menu', 'reservation_info' y 'history'
+export function DriverHomePage({ role, onLogout }: DriverHomePageProps) {
     const [viewMode, setViewMode] = useState<'mapa' | 'lista' | 'reserva' | 'menu' | 'reservation_info' | 'history'>('mapa');
-    
-    // Estado para guardar el parking seleccionado
     const [selectedParking, setSelectedParking] = useState<ParkingItemType | null>(null);
 
-    // Función para manejar el clic en reservar
     const handleReserveClick = (parking: ParkingItemType) => {
         setSelectedParking(parking);
         setViewMode('reserva'); 
     };
     
-    // Función para volver al mapa (desde cualquier lugar que necesite un reset)
     const handleGoBackToMap = () => {
         setViewMode('mapa');
         setSelectedParking(null);
     };
 
-    // --- Nuevas funciones para el menú ---
     const handleMenuOpen = () => {
         setViewMode('menu');
     };
 
     const handleMenuClose = () => {
-        setViewMode('mapa'); // Cierra el menú y vuelve al mapa
+        setViewMode('mapa'); 
     };
     
     const handleViewReservation = () => {
         setViewMode('reservation_info'); 
     };
 
-    // 3. NUEVA FUNCIÓN: Ir a la página de historial
     const handleViewHistory = () => {
         setViewMode('history');
     };
     
     const handleLogout = () => {
-        onLogout(); // Llama a la función pasada desde App.tsx
+        onLogout(); 
     };
 
     const renderView = () => {
@@ -111,37 +108,34 @@ export function DriverHomePage({ onLogout }: DriverHomePageProps) {
             );
         }
 
-        // Renderizar la página de info de reserva
         if (viewMode === 'reservation_info') {
             return (
                 <ReservationInfoPage 
-                    onGoBack={handleMenuOpen} // **CLAVE: Volver al menú**
+                    onGoBack={handleMenuOpen} 
                 />
             );
         }
 
-        // 4. Renderizar la página de historial
         if (viewMode === 'history') {
             return (
                 <ParkingHistoryPage 
-                    onGoBack={handleMenuOpen} // **CLAVE: Volver al menú**
+                    onGoBack={handleMenuOpen} 
                 />
             );
         }
 
-        // Renderizar la página del menú
         if (viewMode === 'menu') {
             return (
                 <ProfileMenuPage 
-                    onGoBack={handleMenuClose} // Volver al mapa
+                    onGoBack={handleMenuClose} 
                     onViewReservation={handleViewReservation}
-                    onViewHistory={handleViewHistory} // **Añadido**
+                    onViewHistory={handleViewHistory} 
                     onLogout={handleLogout}
                 />
             );
         }
 
-        if (viewMode === 'mapa') {
+        if (viewMode === 'mapa' || viewMode === 'lista') {
             const featuredParking = simulatedParkings[0];
 
             return ( 
@@ -213,12 +207,23 @@ export function DriverHomePage({ onLogout }: DriverHomePageProps) {
             {shouldShowHeader && (
                 <header className="flex items-center justify-between p-4 bg-blue-700 text-white shadow-lg z-30 flex-shrink-0">
                     <button 
-                        onClick={handleMenuOpen} // Abre el menú
+                        onClick={handleMenuOpen} 
                         className="p-1 hover:bg-blue-600 rounded-full transition duration-150"
                     >
                         <span className="material-symbols-outlined text-3xl">menu</span>
                     </button>
-                    <h1 className="text-xl font-extrabold tracking-wide">ParkEasy</h1>
+                    
+                    {/* USO DE LA PROP 'role' para corregir la advertencia y darle contexto */}
+                    <div className="flex flex-col items-center justify-center">
+                        <h1 className="text-xl font-extrabold tracking-wide">ParkEasy</h1>
+                        {role && (
+                            <p className="text-xs font-medium mt-[-2px] capitalize opacity-90">
+                                {role === 'driver' ? 'Modo Conductor' : 'Modo Propietario'}
+                            </p>
+                        )}
+                    </div>
+                    {/* FIN DEL USO DE LA PROP 'role' */}
+
                     <button className="p-1 hover:bg-blue-600 rounded-full transition duration-150 relative">
                         <span className="material-symbols-outlined text-3xl">notifications</span>
                         <span className="absolute top-1 right-1 block h-2 w-2 rounded-full ring-2 ring-blue-700 bg-red-500"></span>

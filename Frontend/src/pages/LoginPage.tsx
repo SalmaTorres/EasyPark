@@ -7,7 +7,8 @@ import { DriverHomePage } from './DriverHomePage';
 import { OwnerHomePage } from './OwnerHomePage'; 
 
 type AppMode = 'login' | 'role_select' | 'register_driver' | 'register_owner' | 'home_driver' | 'home_owner';
-type UserRole = 'driver' | 'owner' | null;
+// FIX: Exportamos UserRole para que pueda ser importado por otros módulos (como DriverHomePage)
+export type UserRole = 'driver' | 'owner' | null; 
 
 export function LoginPage() {
     const [mode, setMode] = useState<AppMode>('login'); 
@@ -67,10 +68,9 @@ export function LoginPage() {
                     />
                 );
             case 'home_driver': 
-                return <DriverHomePage onLogout={handleLogout} />;
+                return <DriverHomePage role={userRole} onLogout={handleLogout} />;
             case 'home_owner': 
-                // **CLAVE: Renderizar OwnerHomePage y pasarle la función onLogout**
-                return <OwnerHomePage onLogout={handleLogout} />;
+                return <OwnerHomePage role={userRole} onLogout={handleLogout} />;
             default:
                 return null;
         }

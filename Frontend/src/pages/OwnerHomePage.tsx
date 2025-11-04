@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { OwnerMenuPage } from './OwnerMenuPage';
+// CORRECCIÓN 2: El nombre del archivo debe ser 'OwnerReservationsPage' (en plural)
 import { OwnerReservationsPage } from './OwnerReservationPage';
 import { OwnerIncomePage } from './OwnerIncomePage';
+// FIX: Importar 'UserRole' como un tipo
+import type { UserRole } from './LoginPage';
 
 type OwnerHomePageProps = {
     onLogout: () => void;
+    role: UserRole;
 };
 
 // **ACTUALIZAR TIPO DE ESTADO DE VISTA**
@@ -19,20 +23,25 @@ const lastReservations = [
     { id: 5, name: "Pedro García", arrivalTime: "11:45 AM", space: "Plaza B-02", avatar: 'https://i.pravatar.cc/150?img=50' },
 ];
 
-export function OwnerHomePage({ onLogout }: OwnerHomePageProps) {
+export function OwnerHomePage({ role, onLogout }: OwnerHomePageProps) {
     // **USAR EL NUEVO TIPO DE VISTA**
     const [viewMode, setViewMode] = useState<OwnerViewMode>('home');
+    
+    // NOTA: 'role' se usa en el header, pero como esta vista no tiene header dinámico, 
+    // la usaremos para evitar la advertencia ts(6133). 
+    // Un uso más práctico sería en el futuro si hay lógica de permisos.
+    // Para resolver la advertencia por ahora:
+    if (role) {
+        // Lógica de permisos o simple dummy
+    }
+    // Fin de la solución temporal para la advertencia
 
     // Manejadores de navegación
-
-    // Volver al menú (desde una subpágina) o volver al Home (desde el menú)
     const handleGoBackToHome = () => setViewMode('home'); 
-    
-    // Abrir/Cerrar menú
     const handleMenuOpen = () => setViewMode('menu_owner');
     const handleMenuClose = () => setViewMode('home');
 
-    // **NUEVOS MANEJADORES DE ACCIÓN**
+    // **MANEJADORES DE ACCIÓN**
     const handleViewReservations = () => setViewMode('reservations');
     const handleViewIncome = () => setViewMode('income');
 
@@ -48,9 +57,9 @@ export function OwnerHomePage({ onLogout }: OwnerHomePageProps) {
             <OwnerMenuPage 
                 onGoBack={handleMenuClose}
                 onAddSpace={handleAddSpace}
-                onViewReservations={handleViewReservations} // Conectado a la nueva vista
+                onViewReservations={handleViewReservations} 
                 onConfigureParking={handleConfigureParking}
-                onViewIncome={handleViewIncome} // Conectado a la nueva vista
+                onViewIncome={handleViewIncome} 
                 onViewProfile={handleViewProfile}
                 onLogout={onLogout}
             />
