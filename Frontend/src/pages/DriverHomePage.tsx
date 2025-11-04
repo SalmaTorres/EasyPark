@@ -40,7 +40,7 @@ const ParkingListItem = ({ parking, onReserveClick }: { parking: ParkingItemType
                     'bg-red-100 text-red-700'
                 }`}>
                     <span className="material-symbols-outlined text-sm">
-                        {/* CORRECCIÓN 1: Se eliminó la comparación con 'warning' que no existe en ParkingItemType.availability */}
+                        {/* CORRECCIÓN 2: Uso de 'Media' en lugar de 'warning' para el icono */}
                         {parking.availability === 'Vacío' ? 'check_circle' : parking.availability === 'Media' ? 'warning' : 'cancel'}
                     </span>
                     <span>{parking.availability}</span>
@@ -98,6 +98,68 @@ export function DriverHomePage({ role, onLogout }: DriverHomePageProps) {
         onLogout(); 
     };
 
+    const renderMapAndFeaturedCard = () => {
+        const featuredParking = simulatedParkings[0];
+        return ( 
+            <div className="flex flex-col flex-1 h-full space-y-4">
+                {/* 1. Área del Mapa */}
+                <div className="relative flex-1 rounded-2xl overflow-hidden shadow-2xl min-h-60">
+                    <ParkingMap parkings={simulatedParkings} className="h-full w-full" />
+                </div>
+
+                {/* 2. Tarjeta de Estacionamiento (Destacada) */}
+                <div className="bg-white p-5 rounded-2xl shadow-xl space-y-3 border-t-4 border-blue-600 flex-shrink-0">
+                    <div className="flex justify-between items-start">
+                        {/* Información principal */}
+                        <div>
+                            <h2 className="text-xl font-extrabold text-gray-900">{featuredParking.name}</h2>
+                            <p className="text-sm text-gray-500 mt-1">{featuredParking.address}</p>
+                            
+                            <div className="mt-2 flex items-center space-x-4">
+                                <div className="flex items-center space-x-1">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-green-500 flex-shrink-0"></span>
+                                    <p className="text-sm text-green-600 font-semibold">Alta Disponibilidad</p>
+                                </div>
+                                <div className="flex items-center text-yellow-500 font-bold text-sm">
+                                    {featuredParking.rating} <span className="material-symbols-outlined text-base ml-1">star</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Horario */}
+                        <div className="text-right">
+                            <p className="text-sm text-gray-700 font-semibold">Abierto 24/7</p>
+                        </div>
+                    </div>
+
+                    {/* Precio y Acción */}
+                    <div className="flex justify-between items-center border-t border-gray-100 pt-3">
+                        <p className="text-2xl font-black text-blue-600">{featuredParking.price}<span className="text-sm font-medium text-gray-500">/hora</span></p>
+                        {/* Botón de Reserva para la tarjeta destacada */}
+                        <button 
+                            onClick={() => handleReserveClick(featuredParking)}
+                            className="px-6 py-2.5 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 transition duration-150 shadow-lg shadow-blue-500/50"
+                        >
+                            Reservar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const renderListView = () => {
+        return (
+            <div className="flex flex-col space-y-4 flex-1 overflow-y-auto pt-2">
+                {simulatedParkings.map(parking => (
+                    <ParkingListItem key={parking.id} parking={parking} onReserveClick={handleReserveClick} />
+                ))}
+                <div className="h-10"></div>
+            </div>
+        );
+    }
+    
+    // CORRECCIÓN 1: Lógica de renderizado clara basada en viewMode
     const renderView = () => {
         if (viewMode === 'reserva' && selectedParking) {
             return (
@@ -135,65 +197,15 @@ export function DriverHomePage({ role, onLogout }: DriverHomePageProps) {
             );
         }
 
-        if (viewMode === 'mapa' || viewMode === 'lista') {
-            const featuredParking = simulatedParkings[0];
-
-            return ( 
-                <div className="flex flex-col flex-1 h-full space-y-4">
-                    {/* 1. Área del Mapa */}
-                    <div className="relative flex-1 rounded-2xl overflow-hidden shadow-2xl min-h-60">
-                        <ParkingMap parkings={simulatedParkings} className="h-full w-full" />
-                    </div>
-
-                    {/* 2. Tarjeta de Estacionamiento (Destacada) */}
-                    <div className="bg-white p-5 rounded-2xl shadow-xl space-y-3 border-t-4 border-blue-600 flex-shrink-0">
-                        <div className="flex justify-between items-start">
-                            {/* Información principal */}
-                            <div>
-                                <h2 className="text-xl font-extrabold text-gray-900">{featuredParking.name}</h2>
-                                <p className="text-sm text-gray-500 mt-1">{featuredParking.address}</p>
-                                
-                                <div className="mt-2 flex items-center space-x-4">
-                                    <div className="flex items-center space-x-1">
-                                        <span className="h-2.5 w-2.5 rounded-full bg-green-500 flex-shrink-0"></span>
-                                        <p className="text-sm text-green-600 font-semibold">Alta Disponibilidad</p>
-                                    </div>
-                                    <div className="flex items-center text-yellow-500 font-bold text-sm">
-                                        {featuredParking.rating} <span className="material-symbols-outlined text-base ml-1">star</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {/* Horario */}
-                            <div className="text-right">
-                                <p className="text-sm text-gray-700 font-semibold">Abierto 24/7</p>
-                            </div>
-                        </div>
-
-                        {/* Precio y Acción */}
-                        <div className="flex justify-between items-center border-t border-gray-100 pt-3">
-                            <p className="text-2xl font-black text-blue-600">{featuredParking.price}<span className="text-sm font-medium text-gray-500">/hora</span></p>
-                            {/* Botón de Reserva para la tarjeta destacada */}
-                            <button 
-                                onClick={() => handleReserveClick(featuredParking)}
-                                className="px-6 py-2.5 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 transition duration-150 shadow-lg shadow-blue-500/50"
-                            >
-                                Reservar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        } else { // viewMode === 'lista'
-            return (
-                <div className="flex flex-col space-y-4 flex-1 overflow-y-auto pt-2">
-                    {simulatedParkings.map(parking => (
-                        <ParkingListItem key={parking.id} parking={parking} onReserveClick={handleReserveClick} />
-                    ))}
-                    <div className="h-10"></div>
-                </div>
-            );
+        if (viewMode === 'mapa') {
+            return renderMapAndFeaturedCard();
         }
+        
+        if (viewMode === 'lista') { 
+            return renderListView();
+        }
+        
+        return null;
     };
 
     // Determina si mostrar el encabezado y el toggle. Se ocultan en las vistas que son páginas completas.
@@ -207,13 +219,13 @@ export function DriverHomePage({ role, onLogout }: DriverHomePageProps) {
             {shouldShowHeader && (
                 <header className="flex items-center justify-between p-4 bg-blue-700 text-white shadow-lg z-30 flex-shrink-0">
                     <button 
-                        onClick={handleMenuOpen} 
+                        onClick={handleMenuOpen} // Abre el menú
                         className="p-1 hover:bg-blue-600 rounded-full transition duration-150"
                     >
                         <span className="material-symbols-outlined text-3xl">menu</span>
                     </button>
                     
-                    {/* USO DE LA PROP 'role' para corregir la advertencia y darle contexto */}
+                    {/* UTILIZACIÓN DE LA PROP 'role' para corregir el error */}
                     <div className="flex flex-col items-center justify-center">
                         <h1 className="text-xl font-extrabold tracking-wide">ParkEasy</h1>
                         {role && (
@@ -222,7 +234,7 @@ export function DriverHomePage({ role, onLogout }: DriverHomePageProps) {
                             </p>
                         )}
                     </div>
-                    {/* FIN DEL USO DE LA PROP 'role' */}
+                    {/* FIN DE LA UTILIZACIÓN DE LA PROP 'role' */}
 
                     <button className="p-1 hover:bg-blue-600 rounded-full transition duration-150 relative">
                         <span className="material-symbols-outlined text-3xl">notifications</span>
