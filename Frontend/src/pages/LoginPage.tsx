@@ -1,14 +1,11 @@
-// src/pages/LoginPage.tsx (Actualizado)
-
 import { useState } from 'react';
 import { LoginForm } from "../components/LoginForm";
 import { RoleSelector } from "./RegisterPage";
 import { ConductorRegistrationForm } from '../components/DriverRegistrationForm';
 import { OwnerRegistrationForm } from '../components/OwnerRegistrationForm';
 import { DriverHomePage } from './DriverHomePage';
-// import { OwnerHomePage } from './OwnerHomePage'; // Asume que OwnerHomePage existe
+import { OwnerHomePage } from './OwnerHomePage'; 
 
-// El tipo AppMode ahora incluye el Home del Dueño, si aplica.
 type AppMode = 'login' | 'role_select' | 'register_driver' | 'register_owner' | 'home_driver' | 'home_owner';
 type UserRole = 'driver' | 'owner' | null;
 
@@ -16,7 +13,6 @@ export function LoginPage() {
     const [mode, setMode] = useState<AppMode>('login'); 
     const [userRole, setUserRole] = useState<UserRole>(null); 
 
-    // Función unificada de éxito: guarda el rol y redirige a la vista de Home
     const handleAuthSuccess = (role: UserRole) => {
         setUserRole(role);
         if (role === 'driver') {
@@ -26,14 +22,12 @@ export function LoginPage() {
         }
     };
     
-    // **NUEVA FUNCIÓN CLAVE: Manejar el cierre de sesión**
     const handleLogout = () => {
         setUserRole(null);
         setMode('login');
     };
 
     const isLoginMode = mode === 'login';
-    // Determina si es una vista de pantalla completa (Home)
     const isFullScreen = mode.startsWith('home_'); 
 
     const renderContent = () => {
@@ -46,7 +40,6 @@ export function LoginPage() {
                     />
                 );
             case 'role_select':
-                // ... (lógica de RoleSelector) ...
                 return (
                     <RoleSelector 
                         onBack={() => setMode('login')}
@@ -60,7 +53,6 @@ export function LoginPage() {
                     />
                 );
             case 'register_driver':
-                // ... (lógica de ConductorRegistrationForm) ...
                 return (
                     <ConductorRegistrationForm 
                         onBackToRoleSelect={() => setMode('role_select')}
@@ -68,7 +60,6 @@ export function LoginPage() {
                     />
                 );
             case 'register_owner': 
-                // ... (lógica de OwnerRegistrationForm) ...
                 return (
                     <OwnerRegistrationForm 
                         onBackToRoleSelect={() => setMode('role_select')}
@@ -76,25 +67,14 @@ export function LoginPage() {
                     />
                 );
             case 'home_driver': 
-                // **CLAVE: Pasar la función onLogout al DriverHomePage**
                 return <DriverHomePage onLogout={handleLogout} />;
             case 'home_owner': 
-                // **CLAVE: Pasar la función onLogout al OwnerHomePage (si existiera)**
-                return (
-                    <div className="p-8 text-center text-xl font-bold">
-                        Página de Inicio del Dueño (WIP)
-                        {/* Agregando botón de simulación para poder cerrar sesión */}
-                        <button onClick={handleLogout} className="mt-4 p-2 bg-red-500 text-white rounded">
-                            Cerrar Sesión
-                        </button>
-                    </div>
-                );
+                // **CLAVE: Renderizar OwnerHomePage y pasarle la función onLogout**
+                return <OwnerHomePage onLogout={handleLogout} />;
             default:
                 return null;
         }
     };
-
-    // ... (Tu lógica de clases CSS) ...
 
     const parentContainerClasses = isFullScreen
         ? 'h-screen p-0' 
@@ -109,7 +89,6 @@ export function LoginPage() {
             
             <div className={`w-full bg-white transition-all duration-300 ${cardClasses}`}>
                 
-                {/* Encabezado: SOLO se muestra si NO es la pantalla de inicio */}
                 {!isFullScreen && isLoginMode && (
                     <div className="text-center space-y-1">
                         <h1 className="text-gray-900 text-[28px] font-extrabold tracking-tight">
