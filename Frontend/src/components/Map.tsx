@@ -14,7 +14,7 @@ type ParkingItemType = {
     address: string;
     price: string;
     rating: number;
-    availability: 'Alta' | 'Media' | 'Baja';
+    availability: 'Vacío' | 'Media' | 'Lleno';
 };
 
 interface ParkingMapProps {

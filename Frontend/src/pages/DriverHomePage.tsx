@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { ParkingMap } from '../components/Map';
 import { BookingConfirmationPage } from './BookingConfirmationPage';
+import { ProfileMenuPage } from './ProfileMenuPage';
+import { ReservationInfoPage } from './ReservationInfoPage';
+import { ParkingHistoryPage } from './ParkingHistoryPage';
+
+type DriverHomePageProps = {
+    onLogout: () => void;
+};
 
 type ParkingItemType = {
     id: number;
@@ -8,14 +15,14 @@ type ParkingItemType = {
     address: string;
     price: string;
     rating: number;
-    availability: 'Alta' | 'Media' | 'Baja';
+    availability: 'Vacío' | 'Media' | 'Lleno';
 };
 
 const simulatedParkings: ParkingItemType[] = [
-    { id: 1, name: "Estacionamiento Central", address: "Av. Principal 123, Centro", price: "Bs 2.50/hora", rating: 4.5, availability: 'Alta' },
+    { id: 1, name: "Estacionamiento Central", address: "Av. Principal 123, Centro", price: "Bs 2.50/hora", rating: 4.5, availability: 'Vacío' },
     { id: 2, name: "Parking Norte", address: "Calle Arica 456, Norte", price: "Bs 3.00/hora", rating: 4.8, availability: 'Media' },
-    { id: 3, name: "Garaje Sur", address: "Av. 6 de Agosto 789, Sur", price: "Bs 2.00/hora", rating: 4.1, availability: 'Baja' },
-    { id: 4, name: "El Prado Park", address: "Paseo El Prado 101, Centro", price: "Bs 3.50/hora", rating: 4.7, availability: 'Alta' },
+    { id: 3, name: "Garaje Sur", address: "Av. 6 de Agosto 789, Sur", price: "Bs 2.00/hora", rating: 4.1, availability: 'Lleno' },
+    { id: 4, name: "El Prado Park", address: "Paseo El Prado 101, Centro", price: "Bs 3.50/hora", rating: 4.7, availability: 'Vacío' },
 ];
 
 const ParkingListItem = ({ parking, onReserveClick }: { parking: ParkingItemType, onReserveClick: (parking: ParkingItemType) => void }) => (
@@ -25,12 +32,12 @@ const ParkingListItem = ({ parking, onReserveClick }: { parking: ParkingItemType
             <p className="text-sm text-gray-500 truncate mt-0.5">{parking.address}</p>
             <div className="flex items-center space-x-3 mt-2">
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center space-x-1 ${
-                    parking.availability === 'Alta' ? 'bg-green-100 text-green-700' :
+                    parking.availability === 'Vacío' ? 'bg-green-100 text-green-700' :
                     parking.availability === 'Media' ? 'bg-yellow-100 text-yellow-700' :
                     'bg-red-100 text-red-700'
                 }`}>
                     <span className="material-symbols-outlined text-sm">
-                        {parking.availability === 'Alta' ? 'check_circle' : parking.availability === 'Media' ? 'warning' : 'cancel'}
+                        {parking.availability === 'Vacío' ? 'check_circle' : parking.availability === 'Media' ? 'warning' : 'cancel'}
                     </span>
                     <span>{parking.availability}</span>
                 </span>
@@ -53,9 +60,9 @@ const ParkingListItem = ({ parking, onReserveClick }: { parking: ParkingItemType
     </div>
 );
 
-export function DriverHomePage() {
-    // Nuevo estado: 'mapa' | 'lista' | 'reserva'
-    const [viewMode, setViewMode] = useState<'mapa' | 'lista' | 'reserva'>('mapa');
+export function DriverHomePage({ onLogout }: DriverHomePageProps) {
+    // 2. ACTUALIZAR ESTADO DE VISTA con 'menu', 'reservation_info' y 'history'
+    const [viewMode, setViewMode] = useState<'mapa' | 'lista' | 'reserva' | 'menu' | 'reservation_info' | 'history'>('mapa');
     
     // Estado para guardar el parking seleccionado
     const [selectedParking, setSelectedParking] = useState<ParkingItemType | null>(null);
@@ -63,22 +70,73 @@ export function DriverHomePage() {
     // Función para manejar el clic en reservar
     const handleReserveClick = (parking: ParkingItemType) => {
         setSelectedParking(parking);
-        setViewMode('reserva'); // Cambia la vista a la página de reserva
+        setViewMode('reserva'); 
     };
     
-    // Función para volver (ejecutada desde la página de reserva)
-    const handleGoBack = () => {
+    // Función para volver al mapa (desde cualquier lugar que necesite un reset)
+    const handleGoBackToMap = () => {
         setViewMode('mapa');
         setSelectedParking(null);
     };
 
+    // --- Nuevas funciones para el menú ---
+    const handleMenuOpen = () => {
+        setViewMode('menu');
+    };
+
+    const handleMenuClose = () => {
+        setViewMode('mapa'); // Cierra el menú y vuelve al mapa
+    };
+    
+    const handleViewReservation = () => {
+        setViewMode('reservation_info'); 
+    };
+
+    // 3. NUEVA FUNCIÓN: Ir a la página de historial
+    const handleViewHistory = () => {
+        setViewMode('history');
+    };
+    
+    const handleLogout = () => {
+        onLogout(); // Llama a la función pasada desde App.tsx
+    };
+
     const renderView = () => {
         if (viewMode === 'reserva' && selectedParking) {
-            // Renderiza la nueva página de confirmación
             return (
                 <BookingConfirmationPage 
                     parking={selectedParking}
-                    onGoBack={handleGoBack}
+                    onGoBack={handleGoBackToMap}
+                />
+            );
+        }
+
+        // Renderizar la página de info de reserva
+        if (viewMode === 'reservation_info') {
+            return (
+                <ReservationInfoPage 
+                    onGoBack={handleMenuOpen} // **CLAVE: Volver al menú**
+                />
+            );
+        }
+
+        // 4. Renderizar la página de historial
+        if (viewMode === 'history') {
+            return (
+                <ParkingHistoryPage 
+                    onGoBack={handleMenuOpen} // **CLAVE: Volver al menú**
+                />
+            );
+        }
+
+        // Renderizar la página del menú
+        if (viewMode === 'menu') {
+            return (
+                <ProfileMenuPage 
+                    onGoBack={handleMenuClose} // Volver al mapa
+                    onViewReservation={handleViewReservation}
+                    onViewHistory={handleViewHistory} // **Añadido**
+                    onLogout={handleLogout}
                 />
             );
         }
@@ -91,7 +149,6 @@ export function DriverHomePage() {
                     {/* 1. Área del Mapa */}
                     <div className="relative flex-1 rounded-2xl overflow-hidden shadow-2xl min-h-60">
                         <ParkingMap parkings={simulatedParkings} className="h-full w-full" />
-                      
                     </div>
 
                     {/* 2. Tarjeta de Estacionamiento (Destacada) */}
@@ -137,7 +194,6 @@ export function DriverHomePage() {
             return (
                 <div className="flex flex-col space-y-4 flex-1 overflow-y-auto pt-2">
                     {simulatedParkings.map(parking => (
-                        // Pasar la función de manejo de reserva a cada ítem de la lista
                         <ParkingListItem key={parking.id} parking={parking} onReserveClick={handleReserveClick} />
                     ))}
                     <div className="h-10"></div>
@@ -146,17 +202,20 @@ export function DriverHomePage() {
         }
     };
 
-    // Determina si mostrar el encabezado y el toggle
-    const shouldShowHeader = viewMode !== 'reserva';
-    const shouldShowToggle = viewMode !== 'reserva';
+    // Determina si mostrar el encabezado y el toggle. Se ocultan en las vistas que son páginas completas.
+    const shouldShowHeader = viewMode === 'mapa' || viewMode === 'lista';
+    const shouldShowToggle = viewMode === 'mapa' || viewMode === 'lista';
 
     return (
         <div className="relative flex h-screen w-full flex-col bg-gray-100 font-sans">
             
-            {/* Encabezado Fijo (Barra de Navegación) - Se oculta en la vista de reserva */}
+            {/* Encabezado Fijo (Barra de Navegación) */}
             {shouldShowHeader && (
                 <header className="flex items-center justify-between p-4 bg-blue-700 text-white shadow-lg z-30 flex-shrink-0">
-                    <button className="p-1 hover:bg-blue-600 rounded-full transition duration-150">
+                    <button 
+                        onClick={handleMenuOpen} // Abre el menú
+                        className="p-1 hover:bg-blue-600 rounded-full transition duration-150"
+                    >
                         <span className="material-symbols-outlined text-3xl">menu</span>
                     </button>
                     <h1 className="text-xl font-extrabold tracking-wide">ParkEasy</h1>
@@ -168,9 +227,9 @@ export function DriverHomePage() {
             )}
 
             {/* Contenedor Principal: Toggle y Contenido */}
-            <main className="flex-1 flex flex-col px-4 py-6 space-y-6 overflow-hidden">
+            <main className={`flex-1 flex flex-col ${shouldShowToggle ? 'px-4 py-6 space-y-6' : 'space-y-0 p-0'}`}>
                 
-                {/* Toggle Mapa/Lista - Se oculta en la vista de reserva */}
+                {/* Toggle Mapa/Lista */}
                 {shouldShowToggle && (
                     <div className="flex bg-gray-200 p-1.5 rounded-full shadow-inner z-10 w-full flex-shrink-0">
                         <button 
@@ -196,9 +255,8 @@ export function DriverHomePage() {
                     </div>
                 )}
 
-                {/* Área de Contenido (Mapa, Lista o Reserva) */}
-                {/* Nota: Cuando la vista es 'reserva', el componente toma el 100% del alto y ancho disponible */}
-                <div className="flex-1 overflow-hidden">
+                {/* Área de Contenido (Mapa, Lista, Reserva, Menú, Info Reserva o Historial) */}
+                <div className={`flex-1 overflow-hidden ${shouldShowToggle ? '' : 'p-0'}`}>
                     {renderView()}
                 </div>
 

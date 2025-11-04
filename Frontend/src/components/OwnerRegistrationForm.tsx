@@ -1,6 +1,13 @@
-import { Input } from "./Input";
+import { Input } from "../components/Input"; // Asumiendo que Input está aquí
 import { useState } from "react";
 
+type OwnerRegistrationFormProps = {
+    onBackToRoleSelect: () => void;
+    // CLAVE: Definimos la nueva prop para manejar el éxito del registro
+    onRegistrationSuccess: () => void; 
+};
+
+// Componente simulado para el mapa
 const MapInput = () => {
     return (
         <label className="flex flex-col flex-1">
@@ -29,12 +36,12 @@ const MapInput = () => {
     );
 };
 
-const handleOwnerRegistration = () => console.log('Registrando Dueño de Parqueo...');
-
-export function OwnerRegistrationForm({ onBackToRoleSelect }: { onBackToRoleSelect: () => void }) {
+export function OwnerRegistrationForm({ 
+    onBackToRoleSelect, 
+    onRegistrationSuccess // CLAVE: Recibir la nueva prop aquí
+}: OwnerRegistrationFormProps) {
     const [step, setStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
-    
     const [is24h, setIs24h] = useState(false);
 
     const nextStep = () => setStep(prev => prev < 2 ? prev + 1 : prev);
@@ -50,9 +57,14 @@ export function OwnerRegistrationForm({ onBackToRoleSelect }: { onBackToRoleSele
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (step === 1) {
+            // Lógica de validación de Paso 1...
             nextStep();
         } else {
-            handleOwnerRegistration();
+            // Lógica de validación final de Paso 2...
+            
+            // 3. CLAVE: En lugar de la función de consola, llama al callback de éxito.
+            console.log('Registro de Dueño de Parqueo simulado exitoso.');
+            onRegistrationSuccess(); 
         }
     };
 
@@ -86,6 +98,7 @@ export function OwnerRegistrationForm({ onBackToRoleSelect }: { onBackToRoleSele
             <div className="pt-6">
                 <button
                     type="submit"
+                    // CLAVE: Asegura el azul
                     className="group relative flex w-full justify-center rounded-xl bg-blue-600 px-4 py-3.5 text-lg font-bold text-white shadow-xl shadow-blue-500/50 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-600/60 transition duration-200"
                 >
                 Continuar
@@ -95,37 +108,37 @@ export function OwnerRegistrationForm({ onBackToRoleSelect }: { onBackToRoleSele
         </>
     );
 
-    const renderStep2 = () => (
-        <>
-            <div className="text-left space-y-1">
-                <h2 className="text-gray-900 text-2xl font-extrabold tracking-tight">Paso 2: Tu Parqueo</h2>
-                <p className="text-gray-500 text-base">Ingresa los detalles de tu establecimiento para que los usuarios te encuentren.</p>
-            </div>
+    const renderStep2 = () => (
+        <>
+            <div className="text-left space-y-1">
+                <h2 className="text-gray-900 text-2xl font-extrabold tracking-tight">Paso 2: Tu Parqueo</h2>
+                <p className="text-gray-500 text-base">Ingresa los detalles de tu establecimiento para que los usuarios te encuentren.</p>
+            </div>
 
-            <div className="flex flex-col gap-4">
-                <Input label="Nombre del Estacionamiento" icon="apartment" placeholder="Ej: ParkEasy Central" />
-                <MapInput />
-                <Input label="Cantidad de Espacios" type="number" icon="grid_on" placeholder="0" />
-                
-                {/* Precio por Hora */}
-                <label className="flex flex-col flex-1">
-                    <p className="text-gray-700 text-sm font-medium pb-1.5">Precio por Hora</p>
-                    <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl font-bold">$</span>
-                        <input
-                            type="number"
-                            placeholder="0.00"
-                            className="form-input w-full rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-600 border border-transparent bg-gray-100 h-14 placeholder:text-gray-400 pl-10 pr-4 text-base transition duration-200"
-                        />
-                    </div>
-                </label>
-            </div>
+            <div className="flex flex-col gap-4">
+                <Input label="Nombre del Estacionamiento" icon="apartment" placeholder="Ej: ParkEasy Central" />
+                <MapInput />
+                <Input label="Cantidad de Espacios" type="number" icon="grid_on" placeholder="0" />
+                
+                {/* Precio por Hora */}
+                <label className="flex flex-col flex-1">
+                    <p className="text-gray-700 text-sm font-medium pb-1.5">Precio por Hora</p>
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl font-bold">$</span>
+                        <input
+                            type="number"
+                            placeholder="0.00"
+                            className="form-input w-full rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-600 border border-transparent bg-gray-100 h-14 placeholder:text-gray-400 pl-10 pr-4 text-base transition duration-200"
+                        />
+                    </div>
+                </label>
+            </div>
 
-            {/* Horario de Atención - VERSION SIMPLIFICADA */}
-            <div className="text-left space-y-3 pt-4">
-                <h3 className="text-gray-900 text-xl font-bold">Horario de Atención</h3>
-                
-                <div className="space-y-4 rounded-xl bg-gray-50 p-4 border border-gray-200">
+            {/* Horario de Atención - VERSION SIMPLIFICADA */}
+            <div className="text-left space-y-3 pt-4">
+                <h3 className="text-gray-900 text-xl font-bold">Horario de Atención</h3>
+                
+                <div className="space-y-4 rounded-xl bg-gray-50 p-4 border border-gray-200">
                     
                     {/* Toggle para 24 Horas */}
                     <div className="flex items-center justify-between pb-2 border-b border-gray-200">
@@ -168,41 +181,42 @@ export function OwnerRegistrationForm({ onBackToRoleSelect }: { onBackToRoleSele
                     </div>
 
                     ) : (
-                         <div className="text-center py-2 text-blue-600 font-semibold bg-blue-50/50 rounded-lg">
+                        <div className="text-center py-2 text-blue-600 font-semibold bg-blue-50/50 rounded-lg">
                             El estacionamiento está siempre disponible.
                         </div>
                     )}
-                </div>
-            </div>
+                </div>
+            </div>
 
-            {/* Controles de Navegación del Paso 2 */}
-            <div className="pt-6">
+            {/* Controles de Navegación del Paso 2 */}
+            <div className="pt-6">
                 <button
                     type="submit"
+                    // CLAVE: Asegura el azul
                     className="w-full flex justify-center items-center rounded-xl bg-blue-600 px-4 py-3.5 text-lg font-bold text-white shadow-xl shadow-blue-500/50 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-600/60 transition duration-200"
                 >
                     Registrar
                 </button>
             </div>
-     </>
-    );
+    </>
+    );
 
-    return (
-        <form className="space-y-8" onSubmit={handleSubmit}>
-            
-            {/* Botón de volver */}
-            <button
-                type="button"
-                onClick={prevStep}
-                className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-700 transition duration-150 mb-6"
-            >
-                <span className="material-symbols-outlined text-xl mr-1">arrow_back</span>
-                {step === 1 ? 'Volver al Selector de Rol' : 'Paso Anterior'}
-            </button>
+    return (
+        <form className="space-y-8" onSubmit={handleSubmit}>
+            
+            {/* Botón de volver */}
+            <button
+                type="button"
+                onClick={prevStep}
+                className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-700 transition duration-150 mb-6"
+            >
+                <span className="material-symbols-outlined text-xl mr-1">arrow_back</span>
+                {step === 1 ? 'Volver al Selector de Rol' : 'Paso Anterior'}
+            </button>
 
-            <StepIndicator />
-            
-            {step === 1 ? renderStep1() : renderStep2()}
-        </form>
-    );
+            <StepIndicator />
+            
+            {step === 1 ? renderStep1() : renderStep2()}
+        </form>
+    );
 }

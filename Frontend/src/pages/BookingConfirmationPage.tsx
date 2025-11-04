@@ -6,13 +6,16 @@ type ParkingItemType = {
     address: string;
     price: string; // Ejemplo: "Bs 2.50/hora"
     rating: number;
-    availability: 'Alta' | 'Media' | 'Baja';
+    availability: 'Vacío' | 'Media' | 'Lleno';
 };
 
 type BookingConfirmationPageProps = {
     parking: ParkingItemType;
     onGoBack: () => void; 
 };
+
+// Se elimina 'qr_payment' de los modos de vista.
+type ViewMode = 'details' | 'success';
 
 const extractPriceValue = (priceString: string): number => {
     const match = priceString.match(/[\d.]+/);
@@ -27,6 +30,7 @@ export function BookingConfirmationPage({
     const initialPricePerHour = extractPriceValue(parking.price);
     const [hours, setHours] = useState(1);
     const [paymentMethod, setPaymentMethod] = useState<'Efectivo' | 'QR'>('Efectivo');
+    const [viewMode, setViewMode] = useState<ViewMode>('details'); 
 
     const totalCost = useMemo(() => {
         const cost = initialPricePerHour * hours;
@@ -37,14 +41,30 @@ export function BookingConfirmationPage({
         setHours(prev => Math.max(1, prev + amount)); 
     };
 
+    // CLAVE: La función de confirmación siempre lleva a 'success'
     const handleConfirm = () => {
-        
+        setViewMode('success');
     };
 
-    return (
-        <div className="max-w-none w-full h-full rounded-none shadow-none space-y-0 overflow-y-hidden flex flex-col bg-white">
-            
-            {/* Encabezado Fijo */}
+    // 1. Vista de Confirmación Exitosa (Éxito)
+    const SuccessView = () => (
+        <div className="flex flex-col items-center justify-center h-full text-center p-8 bg-white">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-3">¡Reserva Realizada!</h2>
+            <p className="text-lg text-gray-600 mb-8">Tu plaza ha sido reservada con éxito.</p>
+            <p className="text-md font-semibold text-gray-700 mb-10">Método de pago: {paymentMethod === 'Efectivo' ? 'Efectivo' : 'QR'}</p>
+            <button
+                onClick={onGoBack} // Volver al mapa/home
+                className="w-full max-w-xs justify-center rounded-xl bg-blue-600 px-4 py-3.5 text-lg font-bold text-white shadow-xl shadow-blue-500/40 hover:bg-blue-700 transition duration-150"
+            >
+                Volver al Mapa
+            </button>
+        </div>
+    );
+
+    // 2. Vista de Detalles de Reserva (Default)
+    const DetailsView = () => (
+        <>
+            {/* Encabezado Fijo con botón de volver funcionando */}
             <div className="flex items-center p-4 border-b border-gray-100 flex-shrink-0">
                 <button onClick={onGoBack} className="text-gray-600 hover:text-blue-600 transition duration-150 p-1">
                     <span className="material-symbols-outlined text-2xl">arrow_back</span>
@@ -54,7 +74,7 @@ export function BookingConfirmationPage({
                 </h2>
             </div>
             
-            {/* Contenido principal con scroll (flex-1 para ocupar el espacio) */}
+            {/* Contenido principal con scroll */}
             <div className="p-5 flex-1 overflow-y-auto">
 
                 {/* 1. Detalles del Parqueo */}
@@ -64,7 +84,7 @@ export function BookingConfirmationPage({
                     <p className="text-sm text-gray-500">{parking.address}</p>
                 </div>
                 
-                {/* 2. Selección de Duración (Nuevo Input con botones) */}
+                {/* 2. Selección de Duración */}
                 <h4 className="text-lg font-bold text-gray-800 mb-3">Duración (Horas)</h4>
                 <div className="flex items-center justify-between bg-white p-3 border border-gray-200 rounded-xl shadow-sm mb-6">
                     <button 
@@ -133,12 +153,20 @@ export function BookingConfirmationPage({
                 </div>
                 
                 <button
-                    onClick={handleConfirm}
+                    onClick={handleConfirm} // Esta función siempre lleva a SuccessView
                     className="w-full justify-center rounded-xl bg-blue-600 px-4 py-3.5 text-lg font-bold text-white shadow-xl shadow-blue-500/40 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition duration-150"
                 >
                     Confirmar Reserva
                 </button>
             </div>
+        </>
+    );
+
+    // Renderizado principal basado en el estado `viewMode`
+    return (
+        <div className="max-w-none w-full h-full rounded-none shadow-none space-y-0 overflow-y-hidden flex flex-col bg-gray-50">
+            {viewMode === 'details' && <DetailsView />}
+            {viewMode === 'success' && <SuccessView />}
         </div>
     );
 }

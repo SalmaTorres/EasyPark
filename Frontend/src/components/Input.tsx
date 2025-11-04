@@ -5,6 +5,8 @@ type InputProps = {
   placeholder?: string;
   trailingIcon?: string;
   onTrailingClick?: () => void;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export function Input({
@@ -14,6 +16,8 @@ export function Input({
   placeholder,
   trailingIcon,
   onTrailingClick,
+  value,
+  onChange
 }: InputProps) {
   const paddingRightClass = trailingIcon ? "pr-12" : "pr-4";
 
@@ -30,6 +34,8 @@ export function Input({
         <input
           type={type}
           placeholder={placeholder}
+          value={value} // CLAVE
+          onChange={onChange} // CLAVE
           className={`form-input w-full rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-600 border border-transparent bg-gray-100 h-14 placeholder:text-gray-400 pl-12 text-base transition duration-200 ${paddingRightClass}`}
         />
 

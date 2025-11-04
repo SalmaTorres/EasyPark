@@ -1,4 +1,5 @@
-// import { useState } from 'react'
+// src/App.tsx
+
 import { LoginPage } from './pages/LoginPage'
 import './App.css'
 
