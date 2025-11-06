@@ -227,7 +227,7 @@ export function DriverHomePage({ role, onLogout }: DriverHomePageProps) {
                     
                     {/* UTILIZACIÓN DE LA PROP 'role' para corregir el error */}
                     <div className="flex flex-col items-center justify-center">
-                        <h1 className="text-xl font-extrabold tracking-wide">ParkEasy</h1>
+                        <h1 className="text-xl font-extrabold tracking-wide">EasyPark</h1>
                         {role && (
                             <p className="text-xs font-medium mt-[-2px] capitalize opacity-90">
                                 {role === 'driver' ? 'Modo Conductor' : 'Modo Propietario'}
